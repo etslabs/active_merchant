@@ -8,7 +8,8 @@ module ActiveMerchant #:nodoc:
     class Check < Model
       attr_accessor :first_name, :last_name,
         :bank_name, :routing_number, :account_number,
-        :account_holder_type, :account_type, :number
+        :account_holder_type, :account_type, :number,
+        :ach_account_type, :ach_type
 
       # Used for Canadian bank accounts
       attr_accessor :institution_number, :transit_number
@@ -38,6 +39,10 @@ module ActiveMerchant #:nodoc:
 
       def validate
         errors = []
+
+        if(!empty?(ach_account_type) && !%w[checking savings].include?(ach_account_type.to_s))
+          errors << [:ach_account_type, "must be checking or savings"]
+        end
 
         %i[name routing_number account_number].each do |attr|
           errors << [attr, 'cannot be empty'] if empty?(self.send(attr))
